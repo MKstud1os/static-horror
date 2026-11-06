@@ -1,0 +1,16 @@
+{
+  "name": "static-horror",
+  "version": "1.0.0",
+  "description": "STATIC - a multiplayer first-person horror game",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

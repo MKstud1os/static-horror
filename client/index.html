@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>STATIC</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23050607'/%3E%3Cpath d='M4 10h24M4 16h24M4 22h24' stroke='%239fe8ff' stroke-width='2' stroke-dasharray='3 2 6 3'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#050607;--fg:#c8d0cf;--dim:#6d7a7b;--sig:#9fe8ff;--red:#c2412d;--line:#1d2829;--panel:rgba(8,12,14,.72)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:15px/1.55 "Lucida Console","SF Mono","Courier New",monospace;overflow:hidden;-webkit-font-smoothing:antialiased}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+canvas#bg{position:fixed;inset:0;width:100%;height:100%;z-index:9;image-rendering:pixelated;opacity:.14;pointer-events:none}
+.hide{display:none!important}
+.scr{position:fixed;inset:0;z-index:10;background:radial-gradient(ellipse at 50% 38%,rgba(14,20,23,.86),rgba(3,4,5,.97) 72%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;overflow:auto}
+.scr p{max-width:62ch;margin:0;color:#aab5b4}
+.scr h2{margin:0 0 6px;font-weight:400;letter-spacing:.32em;text-transform:uppercase;color:var(--sig);font-size:16px}
+h1.logo{font-size:clamp(60px,13vw,150px);letter-spacing:.1em;margin:0;font-weight:700;line-height:1;text-shadow:3px 0 #ff2a4d66,-3px 0 #2ad4ff66;animation:gl 5s infinite steps(1)}
+.sub{letter-spacing:.5em;font-size:12px;color:var(--dim);margin:6px 0 26px;text-transform:uppercase}
+@keyframes gl{0%,91%,100%{transform:none;opacity:1}92%{transform:translateX(-8px) skewX(8deg);text-shadow:-10px 0 #ff2a4d,10px 0 #2ad4ff}94%{transform:translateX(6px);opacity:.5}96%{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){h1.logo{animation:none}}
+button,input,select{font:inherit;color:var(--fg);background:rgba(10,15,17,.9);border:1px solid #2b383b;padding:11px 22px;min-width:260px;border-radius:2px;transition:border-color .15s,color .15s,background .15s}
+button{cursor:pointer;letter-spacing:.08em}
+button:hover:not(:disabled){border-color:var(--sig);color:#fff;background:rgba(18,28,31,.95)}
+button:active:not(:disabled){transform:translateY(1px)}
+button:disabled{opacity:.4;cursor:default}
+button.primary{border-color:#3d5b60;color:#fff}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--sig);outline-offset:2px}
+label{display:flex;gap:16px;align-items:center;justify-content:space-between;min-width:320px;color:#aab5b4}
+input[type=range]{min-width:150px;padding:0;accent-color:var(--sig)}
+input[type=checkbox]{min-width:0;accent-color:var(--sig)}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.card{background:var(--panel);border:1px solid var(--line);padding:22px 26px;display:flex;flex-direction:column;gap:12px;align-items:center}
+#rc{font-size:46px;letter-spacing:.3em;color:var(--sig);text-indent:.3em}
+#plist{list-style:none;padding:0;margin:0;min-width:320px;text-align:left}
+#plist li{border-bottom:1px solid var(--line);padding:7px 0;display:flex;justify-content:space-between;gap:20px}
+#plist b{font-weight:400;color:var(--dim)}
+#perr{color:var(--red);min-height:1.4em;font-size:13px}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;text-align:left;font-size:13px;color:#aab5b4}
+.keys b{color:var(--sig);font-weight:400;white-space:nowrap}
+.spin{width:34px;height:34px;border:2px solid #1d2a2d;border-top-color:var(--sig);border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#tip{color:var(--dim);font-size:13px;min-height:2.6em}
+#es{color:var(--sig);letter-spacing:.1em;font-size:13px;margin-top:6px}
+/* in-game HUD */
+#hud{position:fixed;inset:0;z-index:5;pointer-events:none;text-shadow:0 0 4px #000,0 0 10px #000}
+#chap{position:absolute;top:16px;left:18px;color:var(--sig);letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+#obj{position:absolute;top:40px;left:18px;color:#8d9a9b;font-size:12px;max-width:60vw;line-height:1.4}
+#mates{position:absolute;top:16px;right:18px;text-align:right;font-size:13px;color:#aab5b4;line-height:1.6}
+#cross{position:absolute;top:50%;left:50%;width:4px;height:4px;margin:-2px;background:#fff6;border-radius:50%}
+#prompt{position:absolute;top:60%;width:100%;text-align:center;color:#fff;letter-spacing:.06em}
+#subs{position:absolute;bottom:92px;left:50%;transform:translateX(-50%);color:#e6eef0;font-size:16px;background:rgba(0,0,0,.55);padding:6px 14px;border-radius:2px;max-width:80vw;text-align:center}
+#subs:empty,#log:empty{display:none}
+#log{position:absolute;bottom:140px;left:50%;transform:translateX(-50%);color:var(--sig);background:rgba(0,0,0,.55);padding:8px 16px;max-width:70vw;text-align:center;border-left:2px solid var(--sig)}
+#bars{position:absolute;bottom:18px;left:18px;width:230px;font-size:12px;color:#aab5b4;letter-spacing:.06em}
+.bar{height:5px;background:rgba(255,255,255,.1);margin:4px 0 9px}
+.bar i{display:block;height:100%;background:#d7dfde;width:100%;transition:width .1s}
+#corr i{background:var(--red);width:0}
+#hideov{position:fixed;inset:0;z-index:4;background:repeating-linear-gradient(90deg,#000 0 26px,#000d 26px 34px)}
+#downov{position:fixed;top:40%;width:100%;text-align:center;z-index:6;color:var(--red);font-size:22px;letter-spacing:.1em;text-shadow:0 0 6px #000}
+#conn{position:fixed;inset:0;z-index:300;background:#000e;display:flex;align-items:center;justify-content:center;color:var(--red);font-size:20px;text-align:center;padding:20px}
+</style></head><body>
+<canvas id="c"></canvas><canvas id="bg" width="160" height="90"></canvas>
+<div id="hud" class="hide">
+  <div id="chap"></div><div id="obj"></div><div id="mates"></div><div id="cross"></div>
+  <div id="prompt"></div><div id="log"></div><div id="subs"></div>
+  <div id="bars"><div id="fl"></div><div>Stamina</div><div class="bar" id="stam"><i></i></div><div>Signal corruption</div><div class="bar" id="corr"><i></i></div></div>
+</div>
+<div id="hideov" class="hide"></div><div id="downov" class="hide">You are down. Wait for a teammate to revive you.</div>
+
+<div id="menu" class="scr">
+  <h1 class="logo">STATIC</h1><div class="sub">Something is listening</div>
+  <button class="primary" data-go="play">Play</button><button data-go="howto">How to Play</button>
+  <button data-go="settings">Settings</button><button data-go="credits">Credits</button>
+</div>
+<div id="play" class="scr hide"><h2>Enter the facility</h2>
+  <div class="card">
+    <input id="name" maxlength="12" placeholder="Your name" aria-label="Your name">
+    <label>Difficulty <select id="diff"><option value="easy">Easy</option><option value="normal" selected>Normal</option><option value="hard">Hard</option></select></label>
+    <div class="row"><button id="create">Create private room</button><button id="solo" class="primary">Start solo game</button></div>
+    <div class="row"><input id="code" maxlength="4" placeholder="Room code" aria-label="Room code" style="min-width:150px;text-transform:uppercase;text-align:center"><button id="join" style="min-width:150px">Join room</button></div>
+    <div id="perr"></div>
+  </div>
+  <button data-go="menu">Back</button></div>
+<div id="lobby" class="scr hide"><h2>Lobby</h2><div id="rc"></div><div id="ldiff"></div>
+  <button id="copy">Copy room code</button><ul id="plist"></ul>
+  <div class="row"><button id="ready">Ready / not ready</button><button id="startbtn" class="primary">Start game (host)</button></div>
+  <p>Up to 5 players. The host can start once everyone is ready.</p></div>
+<div id="howto" class="scr hide"><h2>How to Play</h2>
+  <p>A research facility of 20 rooms has been taken over by a living signal. You have no weapons. Explore, listen, hide, and work together.</p>
+  <div class="card keys">
+    <b>W A S D</b><span>move</span><b>Mouse</b><span>look</span><b>Shift</b><span>sprint (uses stamina)</span><b>Ctrl or C</b><span>crouch (quieter)</span>
+    <b>E</b><span>interact, read a note, hide in a locker, revive a teammate</span><b>F</b><span>flashlight</span>
+    <b>Q</b><span>EMP pulse: stuns STATIC for a few seconds if it is in front of you and close. Long cooldown.</span><b>Esc</b><span>pause</span>
+  </div>
+  <p>Trace the signal in the Security Office, reset both breakers to open the Signal Chamber gate, then decide at the terminal. Notes hint at a secret ending. STATIC hears running, light and noisy equipment, and notices anyone standing still. Corruption rises over time and with every capture. At 100% you lose.</p>
+  <button data-go="menu">Back</button></div>
+<div id="settings" class="scr hide"><h2>Settings</h2>
+  <div class="card">
+    <label>Mouse sensitivity <input id="sens" type="range" min=".3" max="2.5" step=".1" value="1"></label>
+    <label>Sound volume <input id="vol" type="range" min="0" max="1" step=".05" value=".7"></label>
+    <label>Graphics quality <select id="gfx"><option value="low">Low</option><option value="medium">Medium</option><option value="high" selected>High</option></select></label>
+    <label>Subtitles for sounds <input id="subsOn" type="checkbox" checked></label>
+    <button id="fs">Toggle fullscreen</button>
+  </div><button data-go="menu">Back</button></div>
+<div id="credits" class="scr hide"><h2>Credits</h2><p>STATIC. An original game built with Three.js, Socket.IO, Node.js and the Web Audio API. Every texture, model and sound is generated by code.</p><button data-go="menu">Back</button></div>
+<div id="loading" class="scr hide"><div class="spin"></div><h2>Entering the facility</h2><p id="tip"></p></div>
+<div id="pause" class="scr hide"><h2>Paused</h2><p>Click to return to the game. In multiplayer the facility keeps moving while you are paused.</p></div>
+<div id="end" class="scr hide"><h1 id="et" class="logo" style="font-size:clamp(40px,8vw,90px)"></h1><p id="ep"></p><div id="es"></div><button class="primary" onclick="location.reload()">Return to menu</button></div>
+<div id="conn" class="hide">Connection to the server was lost.<br>Reload the page to start again.</div>
+
+<script>
+// menu polish: animated static behind the menus, and a random tip on the loading screen
+(function () {
+  var bg = document.getElementById('bg'), g = bg.getContext('2d'), hud = document.getElementById('hud'), img = g.createImageData(160, 90);
+  setInterval(function () {
+    if (!hud.classList.contains('hide')) { bg.style.display = 'none'; return; } bg.style.display = 'block';
+    for (var i = 0; i < img.data.length; i += 4) { var v = Math.random() * 255 | 0; img.data[i] = v * .7; img.data[i + 1] = v * .85; img.data[i + 2] = v; img.data[i + 3] = 255; }
+    g.putImageData(img, 0, 0);
+  }, 110);
+  var tips = ['Crouching is quieter than walking. Standing still for a long time is not safe either.', 'Screens and radios are how it watches you. Stay away from them when you can.', 'A locker hides you, but it can still be searched.', 'Your flashlight helps you see, and helps it find you.', 'Press Q when it is right in front of you. The pulse takes a long time to recharge.', 'Read every note. Someone wrote down how to end this.'];
+  document.getElementById('tip').textContent = tips[Math.random() * tips.length | 0];
+})();
+</script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+<script src="/socket.io/socket.io.js"></script>
+<script type="module" src="main.js"></script>
+</body></html>
